@@ -1,0 +1,23 @@
+Verify your username FIRST:
+
+	`whoami`
+
+example response username: john
+
+That's the username you add to the sudo group.
+
+
+Drop into the root shell:
+
+
+	`su -`
+
+Ensure you are updated to latest packages:
+
+	`apt update && apt upgrade -y`
+
+Add your username to the sudo group:
+
+	`adduser john sudo`
+
+Ensure 'john' is replaced with the username you can verify in the first step (BEFORE YOU DROP INTO ROOT)

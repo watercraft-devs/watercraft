@@ -1,0 +1,9 @@
+*.iso
+*.qcow2
+*.img
+SHA256SUMS
+SHA256SUMS.asc
+*.swp
+*~
+.DS_Store
+

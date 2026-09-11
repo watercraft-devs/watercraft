@@ -1,0 +1,4 @@
+VERSION=0.1.0
+CODENAME=Ketch
+DISTRO_NAME="Watercraft"
+DISTRO_ID=watercraft
