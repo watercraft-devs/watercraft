@@ -14,7 +14,7 @@ Found at root of Watercraft source control repository
 # Watercraft Linux release identity.
 # Sourced by boatswain_cleanup.sh and by the release tagging process.
 
-VERSION=0.1.0
+VERSION=0.1.1
 CODENAME=Ketch
 DISTRO_NAME="Watercraft"
 DISTRO_ID=watercraft
@@ -81,7 +81,7 @@ You can also run `lsb_release -a 2>/dev/null` on the installed system to make su
 Since this is just for the live installer, it should be answered like this
 
 ```
-Watercraft 0.1.0 (Ketch) Live Install
+Watercraft 0.1.1 (Ketch) Live Install
 ```
 ---
 

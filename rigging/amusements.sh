@@ -71,3 +71,40 @@ case "$discord_yn" in [Yy]|[Yy][Ee][Ss])
 *) printf "NOT INSTALLED: Discord\n" ;;
 esac
 
+
+
+
+#Doom
+read -p "Do you want to install Doom (crispy-doom)? (y/n): " crispydoomyn
+case "$crispydoomyn" in [Yy]|[Yy][Ee][Ss])
+	sudo apt install -y crispy-doom freedoom  ;
+	read -p "Do you want to play Doom? (y/n): " playdoomyn
+	case "$playdoomyn" in [Yy]|[Yy][Ee][Ss])
+		crispy-doom -iwad /usr/share/games/doom/freedoom1.wad ;;
+		*) printf "Doom installed, play skipped...\n" ;;
+	esac ;;
+	*) printf "NOT INSTALLED: Doom (crispy-doom)\n" ;;
+esac
+
+read -p "Do you want to install RuneLite? (y/n): " rl_yn
+case "$rl_yn" in [Yy]|[Yy][Ee][Ss])
+        sudo apt install libfuse2t64
+        mkdir -p ~/RuneLite_AppImage
+        cd ~/RuneLite_AppImage
+        [ -e RuneLite.AppImage ] ||
+                cd ~/RuneLite_AppImage
+                rl_version="2.8.0"
+                curl -fLO https://github.com/runelite/launcher/releases/download/$rl_version/RuneLite.AppImage
+
+                expected_sha256="418aba881d2f5fd5c717c84429c13ded6cee0c3f70412c95957b85fd85d75536"
+
+                echo "$expected_sha256  RuneLite.AppImage" | sha256sum -c --quiet || {
+                        printf "\n\nSHA256 checksum did not match expected, deleting potentially compromised binary!\n"
+                        rm -f RuneLite.AppImage
+                        exit 1
+                }
+
+        chmod +x RuneLite.AppImage
+#       read -p "Create a RuneLite desktop icon?" di_yn
+esac
+

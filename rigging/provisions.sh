@@ -62,19 +62,25 @@ grep -q 'g:is_bash' ~/.vimrc 2>/dev/null || echo "let g:is_bash = 1" >>  ~/.vimr
 
 
 
+# brave origin web browser (beta)
+# 100% free on Linux
+sudo curl -fsSLo /usr/share/keyrings/brave-browser-beta-archive-keyring.gpg https://brave-browser-apt-beta.s3.brave.com/brave-browser-beta-archive-keyring.gpg
 
-# brave browser
-curl -fsS https://dl.brave.com/install.sh | sh
+sudo curl -fsSLo /etc/apt/sources.list.d/brave-browser-beta.sources https://brave-browser-apt-beta.s3.brave.com/brave-browser.sources
 
-cp /usr/share/applications/brave-browser.desktop ~/Desktop/
+sudo apt update
 
-chmod +x ~/Desktop/brave-browser.desktop
+sudo apt install brave-origin-beta
+
+cp /usr/share/applications/brave-origin-beta.desktop ~/Desktop/
+
+chmod +x ~/Desktop/brave-origin-beta.desktop
 ###
 
 
 
 # additional QOL packages
-sudo apt install htop fastfetch tree unzip zip rsync tmux smartmontools vlc mpv chrony gparted "$Y"
+sudo apt install htop fastfetch tree unzip zip rsync tmux smartmontools vlc mpv gifview chrony gparted "$Y"
 ###
 
 # vlc desktop icon
@@ -103,7 +109,6 @@ amd_vk_install() {
         sudo apt install mesa-vulkan-drivers mesa-utils "$Y"
         read -p "Vulkan install finished, test install? (y/n): " yn
 	case "$yn" in [Yy]|[Yy][Ee][Ss]) 
-#		vulkaninfo | less; // might make a user feel stuck if they dont know less...
 		printf "\n\n\nNOTE: Close spinning vkcube window to continue...\n\n\n" ;
 		vkcube ;;
         *) echo "skipping vulkan test" ;;

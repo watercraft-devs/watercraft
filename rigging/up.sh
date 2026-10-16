@@ -1,2 +1,8 @@
 #!/usr/bin/env bash
-sudo apt update && sudo apt upgrade 
+Y=""
+if [[ $1 != "" ]]; then
+	if [[ $1 == "-y" ]]; then
+		Y="-y"
+	fi
+fi
+sudo apt update && sudo apt upgrade "$Y" 

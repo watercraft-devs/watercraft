@@ -5,9 +5,9 @@ As of today, Watercraft builds are based on `refractainstaller` snapshots
 
 Refracta is a tool that can back up your Devuan system into `ISO` file snapshots
 
-It gives us a dated but convenient path to build Watercraft `ISO`s for version 0.1.0
+It gives us a dated but convenient path to build Watercraft `ISO`s for version 0.1.1
 
-Therefore, currently a Watercraft 0.1.0 image is a `refractasnapshot` of a fully configured Devuan system.
+Therefore, currently a Watercraft 0.1.1 image is a `refractasnapshot` of a fully configured Devuan system.
 
 Through the development process we have determined that we will likely reserve refracta functionality for a snapshot distribution type tool that ships with Watercraft in the future.
 

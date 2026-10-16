@@ -1,7 +1,7 @@
 # Watercraft (GNU + Linux)
 
 
-## *Updated: 2026-09-09*
+## *Updated: 2026-10-15*
 
 ### A `Devuan`-based GNU + Linux Desktop 
 
@@ -21,6 +21,21 @@ Built for unique use-cases, needs, and ideals:
 -  having a pathway to high-customization + simplicity at all levels, remove gatekeeping from Linux system configuration
 -  nurturing an environment that supports organic contributions to Linux operating systems, 
 prioritizing BOTH end user freedom and convenience without making a false dichotomy between them (which leads to gatekeeping)
+
+**ATTENTION: version 0.1.0 has been officially superseded by 0.1.1 due build-time sudo rules persisting onto the installed system**
+
+If you left the default name and your account is named `liveuser` will have passwordless root which is not secure for an actual installation.
+
+The builder account persisting is also insecure as it does not have a secure password. 
+
+If you are on `0.1.0` follow this mitigation:
+```sh
+# 0.1.0 left two sudo rules for the Live Install account 'liveuser' and builder account 'boatswain'
+# If you built from scratch you have to change boatswain to your build account name
+# this script grep matches the files by content and then removes them from sudoers.d
+sudo grep -lE '^(boatswain|liveuser)[[:space:]]' /etc/sudoers.d/* | xargs -r sudo rm
+sudo visudo -c
+```
 
 ---
 ## System Requirements
@@ -69,26 +84,26 @@ This is the fingerprint of the key that signs Watercraft releases and commits.
 ## Download
 Download the release, gpg key, and checksum files here:
 ```
-https://phosphene.xyz/releases/watercraft/ketch-0.1.0/
+https://phosphene.xyz/releases/watercraft/ketch-0.1.1/
 ```
 
 | File | Description | Link | 
 |---|---|---|
-| `watercraft-0.1.0-ketch-amd64.iso` | Watercraft 0.1.0 (Ketch) release ISO image | [watercraft-0.1.0-ketch-amd64.iso](https://phosphene.xyz/releases/watercraft/ketch-0.1.0/watercraft-0.1.0-ketch-amd64.iso) | 
-| `SHA256SUMS` | checksum file | [SHA256SUMS](https://phosphene.xyz/releases/watercraft/ketch-0.1.0/SHA256SUMS)  |
-| `SHA256SUMS.asc` | gpg signed checksum file | [SHA256SUMS.asc](https://phosphene.xyz/releases/watercraft/ketch-0.1.0/SHA256SUMS.asc) | 
-| `watercraft-public.asc` | gpg key used to sign the release | [watercraft-public.asc](https://phosphene.xyz/releases/watercraft/ketch-0.1.0/watercraft-public.asc)  |
+| `watercraft-0.1.1-ketch-amd64.iso` | Watercraft 0.1.1 (Ketch) release ISO image | [watercraft-0.1.1-ketch-amd64.iso](https://phosphene.xyz/releases/watercraft/ketch-0.1.1/watercraft-0.1.1-ketch-amd64.iso) | 
+| `SHA256SUMS` | checksum file | [SHA256SUMS](https://phosphene.xyz/releases/watercraft/ketch-0.1.1/SHA256SUMS)  |
+| `SHA256SUMS.asc` | gpg signed checksum file | [SHA256SUMS.asc](https://phosphene.xyz/releases/watercraft/ketch-0.1.1/SHA256SUMS.asc) | 
+| `watercraft-public.asc` | gpg key used to sign the release | [watercraft-public.asc](https://phosphene.xyz/releases/watercraft/ketch-0.1.1/watercraft-public.asc)  |
 
 To download all of these files at once from the terminal:
 ```sh
-wget -r -np -nH --cut-dirs=1 -R "index.html*" -e robots=off  https://phosphene.xyz/releases/watercraft/ketch-0.1.0/
+wget -r -np -nH --cut-dirs=1 -R "index.html*" -e robots=off  https://phosphene.xyz/releases/watercraft/ketch-0.1.1/
 ```
-This will copy them into directories `watercraft/ketch-0.1.0/` from whatever path you call them in, so if you do it from `~/` they will land in `~/watercraft/ketch-0.1.0/`
+This will copy them into directories `watercraft/ketch-0.1.1/` from whatever path you call them in, so if you do it from `~/` they will land in `~/watercraft/ketch-0.1.1/`
 
 If you want to make your own directory and have them land in there directly, make that directory and `cd` to it, then just run the same thing with the `-nd` "no directories" flag added to the end:
 
 ```sh
-wget -r -np -nH --cut-dirs=1 -R "index.html*" -e robots=off -nd https://phosphene.xyz/releases/watercraft/ketch-0.1.0/
+wget -r -np -nH --cut-dirs=1 -R "index.html*" -e robots=off -nd https://phosphene.xyz/releases/watercraft/ketch-0.1.1/
 ```
 
 ### **Verify the integrity of your Watercraft ISO download by following the steps listed here: [VERIFY_ISO.md](docs/VERIFY_ISO.md)**
@@ -96,9 +111,9 @@ wget -r -np -nH --cut-dirs=1 -R "index.html*" -e robots=off -nd https://phosphen
 
 ### **We strongly encourage every user to verify their Watercraft ISO before installation in order to prevent MITM attacks!**
 
-#### NOTE: for building from source in 0.1.0
+#### NOTE: for building from source in 0.1.1
 
-Watercraft 0.1.0 is built with `refractasnapshot` and `refractainstaller` tools.
+Watercraft 0.1.1 is built with `refractasnapshot` and `refractainstaller` tools.
 
 These tools are dated and cause the build process to be more interactive / involved than should be necessary, therefore building from source is unfortunately not a recommended path yet. 
 
@@ -115,7 +130,7 @@ If you are absolutely determined to build from source instead of just downloadin
 
 ( Remember to try out on a VM if you're skeptical )
 
-NOTE: The Watercraft install is able to be done fully offline, however in order to accomplish this for laptops without ethernet we shipped common (non-free) wifi firmware with the installer. These firmware can be removed by the user in 0.1.0 post install only, in future versions we will make them totally optional due to their non-free categorization. 
+NOTE: The Watercraft install is able to be done fully offline, however in order to accomplish this for laptops without ethernet we shipped common (non-free) wifi firmware with the installer. These firmware can be removed by the user in 0.1.1 post install only, in future versions we will make them totally optional due to their non-free categorization. 
 
 see: [docs/INSTALL.md](docs/INSTALL.md) for more specific instructions
 
@@ -272,7 +287,7 @@ IMPORTANT:
 ## Building from Source
 see: [docs/BUILD.md](docs/BUILD.md)
 
-Watercraft 0.1.0 is built with `refractasnapshot` and `refractainstaller` tools.
+Watercraft 0.1.1 is built with `refractasnapshot` and `refractainstaller` tools.
 
 These tools are dated and cause the build process to be more interactive / involved than should be necessary, therefore building from source is unfortunately not a recommended path yet.
 

@@ -9,11 +9,13 @@
 
 
 
-
-
-BUILD_ACCOUNT=boatswain
-
 set -euo pipefail
+
+
+
+BUILD_ACCOUNT=$(cat /root/build/build-account)
+: "${BUILD_ACCOUNT:?No build account found at expected path. Gabbard rigging failed to export it...}"
+
 
 #: "${DISTRO_NAME:?set DISTRO_NAME}"
 #: "${DISTRO_ID:?set DISTRO_ID}"
@@ -36,7 +38,7 @@ CODENAME_LC=$(echo "$CODENAME" | tr '[:upper:]' '[:lower:]')
 
 
 
-BUILD_ACCOUNT="${BUILD_ACCOUNT:-boatswain}"
+#BUILD_ACCOUNT="${BUILD_ACCOUNT:-boatswain}"
 
 [ "$(id -u)" -eq 0 ] || { echo "Run as root." >&2; exit 1; }
 
@@ -52,6 +54,7 @@ hail() {
 hail "Branding"
 # Refracta reads DISTRO from here for the boot menu, as do neofetch,
 # lsb_release and most tooling.
+rm -f /etc/os-release # remove the symlink or it will stay a symlink and branding gets overwritten
 cat > /etc/os-release <<EOF
 NAME="$DISTRO_NAME"
 VERSION="$VERSION ($CODENAME)"
@@ -71,6 +74,8 @@ if [ -n "$BUILD_ACCOUNT" ] && id "$BUILD_ACCOUNT" >/dev/null 2>&1; then
   [ "$BUILD_ACCOUNT" != "$(logname 2>/dev/null || true)" ] || \
     { echo "Refusing to delete the account you're logged in as." >&2; exit 1; }
   deluser --remove-home "$BUILD_ACCOUNT"
+  rm -f "/etc/sudoers.d/90-$BUILD_ACCOUNT"
+  visudo -c
   adduser --disabled-password --gecos "Live Session" --uid 1000 "$LIVE_USER"
   adduser "$LIVE_USER" sudo
   passwd -d "$LIVE_USER"
@@ -99,6 +104,14 @@ dpkg --get-selections > /root/installed-packages.txt
 apt clean
 
 
+hail "Brand Hostname" #dont let builder hostname persist
+
+OLD_HOST=$(cat /etc/hostname) # this must come before changing the hostname 
+
+printf "watercraft\n" > /etc/hostname
+
+sed -i "s/\b$OLD_HOST\b/watercraft/g" /etc/hosts
+
 # Dumpster 
 # # Could maybe use as a last-in-line space to ensure .sh and other files from build that might be in 
 # # /root/build/rigging -> /usr/local/share/rigging that we want ignored get deleted if found here
@@ -106,6 +119,7 @@ apt clean
 # most will never or shouldn't use many of those scripts, most will use a select few scripts most likely
 # whether the bulk pack or the slim pack is standard is yet to be determined
 # Make sure broken stuff from old build states is incinerated before resnapshotting
+rm -f /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml
 rm -f /etc/firstboot-done
 rm -f /home/liveuser/.config/.launchers-trusted
 rm -f /usr/bin/pad_cpp

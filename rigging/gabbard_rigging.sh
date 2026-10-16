@@ -48,6 +48,26 @@
 #
 set  -euo pipefail
 
+BUILD_ACCOUNT="boatswain" # CHANGE THIS IF YOUR BUILD ACCOUNT USERNAME IS NOT 'boatswain' !
+
+
+[ "$(id -u)" -eq 0 ] || { printf "\n!!RUN WITH SUDO FROM YOUR BUILDER ACCOUNT!!\n" >&2; exit 1; }
+
+if [ -z "${SUDO_USER:-}"  ] || [ "$SUDO_USER" = root  ]; then
+        printf "Do not run directly as root. Just run with sudo from your builder account!\n"
+        exit 1
+fi
+
+if [ "$SUDO_USER" != "$BUILD_ACCOUNT" ]; then
+        printf "Current user: %s\nExpected build acount name: %s\n" "$SUDO_USER" "$BUILD_ACCOUNT"
+        printf "\nUser name must match build account name.\n"
+        printf "Edit the BUILD_ACCOUNT variable and set it to %s to proceed with this build." "$SUDO_USER"
+        exit 1
+fi
+
+printf '%s\n' "$BUILD_ACCOUNT" > /root/build/build-account
+# export BUILD_ACCOUNT to a file that boatswain_cleanup.sh can source later
+
 
 printf "gabbard_rigging.sh is meant to be ran in an ISOLATED VM INSTANCE ONLY\n\n"
 
@@ -57,26 +77,42 @@ printf "MAKE SURE YOU ARE RUNNING IN AN ISOLATED VM INSTANCE DEDICATED TO WATERC
 
 read -p "Are you in an isolated VM instance? (y/n): " vmyn
 
-if [[ "$vmyn" == "y" ]]; then
-	printf "VM CONFIRMED, RIGGING THE GABBARD"
-else
-	printf "ISOLATED VM INSTANCE CAN BE CREATED WITH BASIC DEVUAN INSTALLATION AND QEMU"
-	exit
-fi
+case "$vmyn" in 
+	[Yy]|[Yy][Ee][Ss]) 
+		printf "VM CONFIRMED, RIGGING THE GABBARD" ;;
+	*) 
+		printf "ISOLATED VM INSTANCE CAN BE CREATED WITH BASIC DEVUAN INSTALLATION AND QEMU" ;
+		exit ;;
+esac
+
+
+# Source version info
+VERSION_FILE="/root/build/rigging/VERSION" #VERSION and this file should always be located in same dir anyway...
+[ -f "$VERSION_FILE" ] || { printf "VERSION file not found at $VERSION_FILE" >&2; exit 1; }
+. "$VERSION_FILE"
+: "${VERSION:?VERSION not set in VERSION file}"
+: "${CODENAME:?CODENAME not set in VERSION file}"
+: "${DISTRO_NAME:?DISTRO_NAME not set in VERSION file}"
+
+CODENAME_LC=$(echo "$CODENAME" | tr '[:upper:]' '[:lower:]')
+
+
+printf "\nAbout to build %s version %s (%s)\n" "$DISTRO_NAME" "$VERSION" "$CODENAME"
+
+read -p "Double check. Is this the correct version you want to build? (y/n): " versionyn
+case "$versionyn" in 
+        [Yy]|[Yy][Ee][Ss]) ;;
+        *) 
+		printf "Change the VERSION file in your base folder then re-sync it to rigging, then re-run gabbard_rigging.sh (this script).\n" ;
+		exit 1;
+esac
+
+
 
 
 LIVE_USER="${LIVE_USER:-liveuser}"
 PAYLOAD_SRC="${PAYLOAD_SRC:-./rigging}"
 PAYLOAD_DST="/usr/local/share/rigging"
-
-###
-
-[ "$(id -u)" -eq 0 ] || { printf "\n!!RUN AS ROOT / SUDO!!\n" >&2; exit 1; }
-
-
-###
-
-
 
 
 for old in live liveuser; do
@@ -244,32 +280,6 @@ update-rc.d rm-live-sudoers defaults
 #autologin-user-timeout=0
 #EOF
 
-hail "FIRST-BOOT CLEANUP SERVICE"
-cat > /etc/init.d/firstboot-cleanup <<'EOF'
-#!/bin/sh
-### BEGIN INIT INFO
-# Provides:          firstboot-cleanup
-# Required-Start:    $all
-# Required-Stop:
-# Default-Start:     2 3 4 5
-# Default-Stop:
-# Short-Description: Remove live-session config on installed systems
-### END INIT INFO
-
-# Live boots carry boot=live; installed systems don't. Leave live media alone.
-grep -qs 'boot=live' /proc/cmdline && exit 0
-[ ! -e /etc/sudoers.d/liveuser-nopasswd ] && exit 0
-
-if rm -f /etc/sudoers.d/liveuser-nopasswd && \
-   sed -i 's/^auto_login.*/auto_login          no/' /etc/slim.conf && \
-   grep -q '^auto_login *no' /etc/slim.conf; then
-    update-rc.d -f firstboot-cleanup remove
-    rm -f "$0"
-fi
-exit 0
-EOF
-chmod +x /etc/init.d/firstboot-cleanup
-update-rc.d firstboot-cleanup defaults
 
 
 hail "REFRACTAINSTALLER EFI FALLBACK"
@@ -286,6 +296,30 @@ sed -i '/^exit 0/i rm -f /target/etc/skel/Desktop/install-system.desktop' \
 
 chmod +x /usr/lib/refractainstaller/post-install/cleanup-install.sh
 
+hail "Watercraft post-install hook"
+
+cat > /usr/lib/refractainstaller/post-install/watercraft-cleanup.sh <<EOF
+#!/bin/sh
+# remove all -nopasswd users from sudoers
+rm -f /target/etc/sudoers.d/*-nopasswd
+
+# deluser removes the boatswain / builder account above but its sudoers entry remains, 
+# no build accounts should persist whatsoever, this removes builder from sudoers.
+rm -f /target/etc/sudoers.d/90-$BUILD_ACCOUNT
+
+# Ensure autologin is OFF, artifact from liveuser
+if [ -f /target/etc/slim.conf ]; then
+    sed -i 's/^#*[[:space:]]*auto_login.*/auto_login          no/' \
+        /target/etc/slim.conf
+fi
+
+# Remove firstboot cleanup files
+rm -f /target/etc/init.d/firstboot-cleanup
+rm -f /target/etc/rc?.d/*firstboot-cleanup
+
+exit 0
+EOF
+chmod +x /usr/lib/refractainstaller/post-install/watercraft-cleanup.sh
 
 hail "Blacklist floppy driver"
 
@@ -305,23 +339,10 @@ install -Dm644 rigging/assets/WatercraftBackgroundCustom_DEFAULT.png \
     /usr/share/backgrounds/watercraft/default.png
 install -Dm644 rigging/assets/WatercraftBackgroundCustom_KRAKEN.png \
     /usr/share/backgrounds/watercraft/kraken.png
-mkdir -p /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml
-cat > /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml <<'EOF'
-<?xml version="1.0" encoding="UTF-8"?>
-<channel name="xfce4-desktop" version="1.0">
-  <property name="backdrop" type="empty">
-    <property name="screen0" type="empty">
-      <property name="monitor0" type="empty">
-        <property name="workspace0" type="empty">
-          <property name="last-image" type="string"
-                    value="/usr/share/backgrounds/watercraft/default.png"/>
-          <property name="image-style" type="int" value="5"/>
-        </property>
-      </property>
-    </property>
-  </property>
-</channel>
-EOF
+
+update-alternatives --install /usr/share/images/desktop-base/desktop-background \
+	desktop-background /usr/share/backgrounds/watercraft/default.png 100 # set fallback to Watercraft default
+
 cat > /usr/local/bin/watercraft-wallpaper <<'EOF'
 #!/bin/bash
 BG=/usr/share/backgrounds/watercraft/default.png
