@@ -22,6 +22,33 @@ Built for unique use-cases, needs, and ideals:
 -  nurturing an environment that supports organic contributions to Linux operating systems, 
 prioritizing BOTH end user freedom and convenience without making a false dichotomy between them (which leads to gatekeeping)
 
+### IMPORTANT SECURITY UPDATE: NEW AS OF 10-29-26: CVE-2026-98432 affects the Linux kernel that ships with this Watercraft 0.1.1 ISO!
+Check your kernel version:
+```
+uname -r
+```
+If it prints anything lower than: `6.12.113+deb13-amd64` you are vulnerable.
+To patch the vulnerability simply upgrade your kernel with these commands:
+```ssh
+sudo apt update && sudo apt full-upgrade
+```
+Then reboot your system for it to take effect:
+```
+sudo reboot
+```
+Log in, then check afterwards that the correct kernel is being used:
+```
+uname -r
+# Should print 6.12.113+deb13-amd64 as of 10-29-26
+```
+If it prints the expected version `6.12.113+deb13-amd64` you are patched.
+
+If it does not, you may need to run `sudo dpkg --configure -a` to fix an interrupted install.
+
+After that, run `sudo reboot` again, after logging in check that the correct kernel is being used as directed above.
+
+
+
 **ATTENTION: version 0.1.0 has been officially superseded by 0.1.1 due build-time sudo rules persisting onto the installed system**
 
 If you left the default name and your account is named `liveuser` will have passwordless root which is not secure for an actual installation.
