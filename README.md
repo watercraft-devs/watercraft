@@ -22,7 +22,7 @@ Built for unique use-cases, needs, and ideals:
 -  nurturing an environment that supports organic contributions to Linux operating systems, 
 prioritizing BOTH end user freedom and convenience without making a false dichotomy between them (which leads to gatekeeping)
 
-### IMPORTANT SECURITY UPDATE: NEW AS OF 10-29-26: CVE-2026-98432 affects the Linux kernel that ships with this Watercraft 0.1.1 ISO!
+### IMPORTANT SECURITY UPDATE: NEW AS OF Oct 29 2026: CVE-2026-98432 affects the Linux kernel that ships with this Watercraft 0.1.1 ISO!
 Check your kernel version:
 ```
 uname -r
@@ -39,13 +39,27 @@ sudo reboot
 Log in, then check afterwards that the correct kernel is being used:
 ```
 uname -r
-# Should print 6.12.113+deb13-amd64 as of 10-29-26
+# Should print 6.12.113+deb13-amd64 as of Oct 29 2026
+# Will be a higher kernel version in the future
 ```
 If it prints the expected version `6.12.113+deb13-amd64` you are patched.
 
 If it does not, you may need to run `sudo dpkg --configure -a` to fix an interrupted install.
 
 After that, run `sudo reboot` again, after logging in check that the correct kernel is being used as directed above.
+
+If it STILL shows the old version try to update grub, then reboot and check again:
+
+```sh
+sudo update-grub
+sudo reboot
+```
+...log in...
+```
+uname -r
+# Should print 6.12.113+deb13-amd64 as of Oct 29 2026
+# Will be a higher kernel version in the future
+```
 
 
 
