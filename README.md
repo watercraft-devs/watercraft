@@ -1,7 +1,7 @@
 # Watercraft (GNU + Linux)
 
 
-## *Updated: 2026-10-15*
+## *Updated: 2026-11-1*
 
 ### A `Devuan`-based GNU + Linux Desktop 
 
