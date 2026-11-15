@@ -68,6 +68,12 @@ EOF
 sed -i 's|^GRUB_DISTRIBUTOR=.*|GRUB_DISTRIBUTOR=`( . /etc/os-release \&\& echo ${PRETTY_NAME} )`|' /etc/default/grub
 grep GRUB_DISTRIBUTOR /etc/default/grub
 
+
+hail "/etc/skel trash" # must do BEFORE creating liveuser
+rm -f /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml
+rm -f /etc/skel/Desktop/brave-origin-beta.desktop
+
+
 LIVE_USER="liveuser"
 hail "Remove build account"
 if [ -n "$BUILD_ACCOUNT" ] && id "$BUILD_ACCOUNT" >/dev/null 2>&1; then
@@ -78,6 +84,7 @@ if [ -n "$BUILD_ACCOUNT" ] && id "$BUILD_ACCOUNT" >/dev/null 2>&1; then
   visudo -c
   adduser --disabled-password --gecos "Live Session" --uid 1000 "$LIVE_USER"
   adduser "$LIVE_USER" sudo
+  sed -i 's/^liveuser:/1000:/' /etc/subuid /etc/subgid
   passwd -d "$LIVE_USER"
 fi
 
@@ -119,7 +126,6 @@ sed -i "s/\b$OLD_HOST\b/watercraft/g" /etc/hosts
 # most will never or shouldn't use many of those scripts, most will use a select few scripts most likely
 # whether the bulk pack or the slim pack is standard is yet to be determined
 # Make sure broken stuff from old build states is incinerated before resnapshotting
-rm -f /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml
 rm -f /etc/firstboot-done
 rm -f /home/liveuser/.config/.launchers-trusted
 rm -f /usr/bin/pad_cpp

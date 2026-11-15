@@ -8,7 +8,7 @@ if [[ "$1" != "" ]]; then
 	fi
 fi
 
-printf "\n\n\n\n\n\n\n\nMandatory Software Disclaimer: \n
+printf "\n\n\n\nMandatory Software Disclaimer: \n
 Spotify is installed from its own apt repository and signed with its own gpg key.\n
 Adding their key and installing Spotify implies you trust this chain of verification from them for this installation and future Spotify upgrades.\n
 It will be upgraded alongside your other system packages when you run apt upgrade.\n
@@ -29,27 +29,28 @@ case "$spotify_yn" in [Yy]|[Yy][Ee][Ss])
 		printf "Spotify Install Finished!\n" ;;
 	*) printf "Spotify Install Finished!\n" ; 
 	esac ;;
-*) printf "NOT INSTALLED: Spotify\n" ;;
+*) printf "NOT INSTALLED: Spotify\n\n" ;;
 esac
 
 #Terminal Toys
 read -p $'Do you want to install Terminal Toys? (cowsay sl fortune-mod cmatrix lolcat)\n\n(y/n): ' tt_yn
 case "$tt_yn" in [Yy]|[Yy][Ee][Ss])
 	sudo apt install cowsay sl fortune-mod cmatrix lolcat "$y";;
-*) printf "NOT INSTALLED: Terminal Toys (cowsay sl fortune-mod cmatrix lolcat)\n" ;;
+*) printf "NOT INSTALLED: Terminal Toys\n\n" ;;
 esac
 ###
 
 #Project M (Old school OpenGL based Audio Visualizer)
+printf "\nProjectM is an old-school OpenGL based Audio Visualizer\n"
 read -p "Do you want to install Project M? (y/n): " projmyn
 case "$projmyn" in [Yy]|[Yy][Ee][Ss])
 # Requires VLC ?
 	sudo apt install  projectm-sdl projectm-data libprojectm3 projectm-pulseaudio "$y";;
 	#TODO: pulseaudio may not be the correct audio driver for other systems, needs porting
-*) printf "NOT INSTALLED: Project M\n" ;;
+*) printf "NOT INSTALLED: Project M\n\n" ;;
 esac
 
-printf "\n\n\n\n\n\n\n\n\n\nMandatory Software Disclaimer: \n
+printf "\n\n\n\n\n\nMandatory Software Disclaimer: \n
 If installed, Discord will be installed using Flathub, not directly.
 Therefore it needs Flatpak, it WILL INSTALL Flatpak if you don't have it yet. (few hundred MB)
 The Flathub package is a community-maintained wrapper around Discord's official binary.
@@ -68,7 +69,7 @@ case "$discord_yn" in [Yy]|[Yy][Ee][Ss])
 	flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo ;
 	printf "IF IT BREAKS HERE JUST RE-RUN! (glitch with first time flatpak remote-add since it's a chicken or egg situation as to whether flatpak gets installed on the system or not, Discord is only thing that uses it and likely only amusements will use it in the future)" ;
 	flatpak install flathub com.discordapp.Discord	;;
-*) printf "NOT INSTALLED: Discord\n" ;;
+*) printf "NOT INSTALLED: Discord\n\n" ;;
 esac
 
 
@@ -83,14 +84,16 @@ case "$crispydoomyn" in [Yy]|[Yy][Ee][Ss])
 		crispy-doom -iwad /usr/share/games/doom/freedoom1.wad ;;
 		*) printf "Doom installed, play skipped...\n" ;;
 	esac ;;
-	*) printf "NOT INSTALLED: Doom (crispy-doom)\n" ;;
+	*) printf "NOT INSTALLED: Doom (crispy-doom)\n\n" ;;
 esac
 
+
+printf "\n\n\n\n\n\nMandatory Software Disclaimer: \n\nRuneLite: third-party software from runelite.net, verified against a pinned SHA-256.\nIt updates through its own launcher, not apt.\n"
 read -p "Do you want to install RuneLite? (y/n): " rl_yn
 case "$rl_yn" in [Yy]|[Yy][Ee][Ss])
-        sudo apt install libfuse2t64
-        mkdir -p ~/RuneLite_AppImage
-        cd ~/RuneLite_AppImage
+        sudo apt install libfuse2t64 
+        mkdir -p ~/RuneLite_AppImage 
+        cd ~/RuneLite_AppImage 
         [ -e RuneLite.AppImage ] ||
                 cd ~/RuneLite_AppImage
                 rl_version="2.8.0"
@@ -104,7 +107,19 @@ case "$rl_yn" in [Yy]|[Yy][Ee][Ss])
                         exit 1
                 }
 
-        chmod +x RuneLite.AppImage
+        chmod +x RuneLite.AppImage ;;
 #       read -p "Create a RuneLite desktop icon?" di_yn
+       *) printf "NOT INSTALLED: RuneLite\n\n" ;;
 esac
 
+printf "\n\n\n\n\n\nMandatory Software Disclaimer: \n\nPrism Launcher is a free and open source Minecraft Java client.\nIt is downloaded from Debian apt backports (contrib).\nThe Minecraft runtime itself is proprietary and is downloaded from Mojang/Microsoft when you sign in.\n"
+read -p "Do you want to install prismlauncher? (y/n): " prism_yn
+case "$prism_yn" in [Yy]|[Yy][Ee][Ss])
+	echo "deb http://deb.devuan.org/merged excalibur-backports main contrib" | sudo tee /etc/apt/sources.list.d/backports.list
+	# add backports to sources list
+	sudo apt update
+
+	sudo apt install -t excalibur-backports prismlauncher
+	# get prism launcher (GPL Minecraft Java client
+	#
+esac

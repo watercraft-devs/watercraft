@@ -136,6 +136,8 @@ hail() {
 }
 
 
+err() { printf '%s\n' "$*" >&2; exit 1; }
+
 ###
 
 hail "INSTALLING BUILD-TIME PACKAGES"
@@ -300,6 +302,9 @@ hail "Watercraft post-install hook"
 
 cat > /usr/lib/refractainstaller/post-install/watercraft-cleanup.sh <<EOF
 #!/bin/sh
+# remove lightdm autologin leftover
+rm -f /target/etc/lightdm/lightdm.conf.d/60-autologin.conf
+
 # remove all -nopasswd users from sudoers
 rm -f /target/etc/sudoers.d/*-nopasswd
 
@@ -333,6 +338,33 @@ apt install -y --no-install-recommends \
 	firmware-iwlwifi \
 	firmware-atheros \
 	firmware-brcm80211
+
+
+hail "Removing Firefox"
+
+apt purge -y firefox-esr
+apt autoremove --purge -y
+
+hail "Installing Brave"
+sudo apt install curl -y
+
+sudo curl -fsSLo /usr/share/keyrings/brave-browser-archive-keyring.gpg https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg
+
+sudo curl -fsSLo /etc/apt/sources.list.d/brave-browser-release.sources https://brave-browser-apt-release.s3.brave.com/brave-browser.sources
+
+sudo apt update
+
+sudo apt install brave-origin -y
+
+cp /usr/share/applications/brave-origin.desktop /etc/skel/Desktop/
+
+chmod +x /etc/skel/Desktop/brave-origin.desktop
+
+
+grep -rl firefox /etc/skel /usr/share/applications || true
+update-alternatives --display x-www-browser
+
+
 
 hail "Themes"
 install -Dm644 rigging/assets/WatercraftBackgroundCustom_DEFAULT.png \
@@ -370,6 +402,41 @@ NoDisplay=true
 EOF
 
 
+hail "Adding chrony"
+apt-get install -y chrony
+update-rc.d chrony defaults
+
+hail "Adding microcode"
+
+apt-get install -y amd64-microcode intel-microcode || err 'microcode install failed'
+
+hail "Adding Watercraft keyring and apt repo"
+install -m 644 /root/build/rigging/watercraft-archive-keyring.gpg /usr/share/keyrings/watercraft-archive-keyring.gpg
+cat > /etc/apt/sources.list.d/watercraft.sources <<'EOF'
+Types: deb
+URIs: https://phosphene.xyz/repo
+Suites: ketch
+Components: main
+Signed-By: /usr/share/keyrings/watercraft-archive-keyring.gpg
+EOF
+
+hail "Installing Watercraft descaled (rust-free) kernel and Watercraft packages"
+apt-get update || err 'apt update failed'
+apt-get install -y watercraft-archive-keyring \
+    linux-image-wc-descaled-amd64 linux-headers-wc-descaled-amd64 \
+    || err 'watercraft packages failed'
+apt-get full-upgrade -y || err 'full-upgrade failed'
+apt-get autoremove --purge -y
+
+hail "Checking Watercraft package versions"
+for p in xserver-xorg-core linux-image-wc-descaled-amd64 watercraft-archive-keyring; do
+    printf '%s %s\n' "$p" "$(dpkg-query -W -f='${Version}' "$p")"
+done
+case "$(dpkg-query -W -f='${Version}' xserver-xorg-core)" in
+    *+wc*) ;;
+    *) printf 'WARNING: Xorg is not the Watercraft-patched build; check it is a fixed Devuan version\n' >&2 ;;
+esac
+ls /boot/vmlinuz-*
 
 
 ###########################################################################################################################

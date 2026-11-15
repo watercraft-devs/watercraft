@@ -62,25 +62,8 @@ grep -q 'g:is_bash' ~/.vimrc 2>/dev/null || echo "let g:is_bash = 1" >>  ~/.vimr
 
 
 
-# brave origin web browser (beta)
-# 100% free on Linux
-sudo curl -fsSLo /usr/share/keyrings/brave-browser-beta-archive-keyring.gpg https://brave-browser-apt-beta.s3.brave.com/brave-browser-beta-archive-keyring.gpg
-
-sudo curl -fsSLo /etc/apt/sources.list.d/brave-browser-beta.sources https://brave-browser-apt-beta.s3.brave.com/brave-browser.sources
-
-sudo apt update
-
-sudo apt install brave-origin-beta
-
-cp /usr/share/applications/brave-origin-beta.desktop ~/Desktop/
-
-chmod +x ~/Desktop/brave-origin-beta.desktop
-###
-
-
-
 # additional QOL packages
-sudo apt install htop fastfetch tree unzip zip rsync tmux smartmontools vlc mpv gifview chrony gparted "$Y"
+sudo apt install htop fastfetch tree unzip zip rsync tmux smartmontools vlc mpv gifview gparted "$Y"
 ###
 
 # vlc desktop icon
@@ -179,6 +162,7 @@ fi
 xfconf-query -c xfwm4 -p /general/tile_on_move -s true
 xfconf-query -c xfwm4 -p /general/wrap_windows -s false # disable pacman-esque warping / wrap, it blocks tiling
 
+fastfetch | lolcat  -t -F 0.0053 -S 700 --animate --speed=500 --spread=0.27 -d 14
 
 # should return true after logout: 
 # 		 xfconf-query -c xfwm4 -p /general/tile_on_move
